@@ -606,6 +606,11 @@ asynStatus NDPluginDriver::connectToArrayPort(void)
     asynGenericPointerPvt_ = pasynInterface->drvPvt;
     connectedToArrayPort_ = true;
 
+    /* Debug: report which NDArrayPort/address this plugin just connected to */
+    asynPrint(this->pasynUserSelf, ASYN_TRACE_FLOW,
+              "%s::%s connected to NDArrayPort=\"%s\" NDArrayAddress=%d, EnableCallbacks=%d\n",
+              driverName, functionName, arrayPort.c_str(), arrayAddr, enableCallbacks);
+
     /* Enable or disable interrupt callbacks */
     status = setArrayInterrupt(enableCallbacks);
 
@@ -722,6 +727,11 @@ asynStatus NDPluginDriver::writeInt32(asynUser *pasynUser, epicsInt32 value)
         }
 
     } else if (function == NDPluginDriverArrayAddr) {
+        int oldAddr = 0;
+        getIntegerParam(addr, NDPluginDriverArrayAddr, &oldAddr);
+        asynPrint(pasynUser, ASYN_TRACE_FLOW,
+                  "%s::%s NDPluginDriverArrayAddr change: old=%d new=%d (addr=%d)\n",
+                  driverName, functionName, oldAddr, value, addr);
         this->unlock();
         status = connectToArrayPort();
         this->lock();
